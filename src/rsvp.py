@@ -1,38 +1,39 @@
-"""RSVP Manager — Starter
-
-You are cleaning up RSVP emails for an event.
-
-Implement the three functions below without mutating inputs.
-"""
-from typing import List, Tuple
+# src/rsvp.py
+from collections import Counter
+from typing import List, Tuple, Optional
 
 
 def dedupe_emails_case_preserve_order(emails: List[str]) -> List[str]:
-    """Return a new list with duplicate emails removed, preserving first seen.
+    """Remove duplicate emails, case-insensitive, preserving first occurrence order."""
+    seen = set()
+    result = []
+    for email in emails:
+        if "@" not in email:
+            continue  # skip invalid entries
+        key = email.lower()
+        if key not in seen:
+            seen.add(key)
+            result.append(email)
+    return result
 
-    Treat emails case-insensitively ("ALICE@x.com" == "alice@x.com").
-    Keep the first form you saw.
 
-    Ignore entries that do not contain an '@' character.
-    """
-    raise NotImplementedError
-
-
-def first_with_domain(emails: List[str], domain: str) -> int | None:
-    """Return the index of the first email whose domain matches `domain`.
-
-    Examples:
-        emails=["a@x.com","b@y.com"], domain="y.com" -> 1
-        no match -> None
-    Comparison is case-insensitive.
-    """
-    raise NotImplementedError
+def first_with_domain(emails: List[str], domain: str) -> Optional[int]:
+    """Return the index of the first email with given domain (case-insensitive)."""
+    domain = domain.lower()
+    for i, email in enumerate(emails):
+        if "@" in email:
+            _, d = email.split("@", 1)
+            if d.lower() == domain:
+                return i
+    return None
 
 
 def domain_counts(emails: List[str]) -> List[Tuple[str, int]]:
-    """Return (domain, count) pairs sorted by domain (A..Z), case-insensitive.
-
-    Skip malformed entries without an '@'.
-    Example: ["a@x.com","b@x.com","c@y.com"] -> [("x.com", 2), ("y.com", 1)]
-    """
-    raise NotImplementedError
+    """Return list of (domain, count), sorted by domain name, ignoring invalid emails."""
+    domains = []
+    for email in emails:
+        if "@" in email:
+            _, d = email.split("@", 1)
+            domains.append(d.lower())
+    counter = Counter(domains)
+    return sorted(counter.items())
